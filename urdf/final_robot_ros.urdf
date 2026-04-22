@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="final_robot_ros">
+  
+  <link name="base_footprint"/>
+  
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <!-- Rotate from ROS frame (Z-up) to STL frame (Y-up) -->
+    <!-- X_ros = Z_stl, Y_ros = X_stl, Z_ros = Y_stl -->
+    <origin xyz="0 0 0" rpy="1.570796 0 1.570796" />
+  </joint>
+
+  <!-- BASE LINK -->
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0.05 0" rpy="0 0 0" />
+      <mass value="5.0" />
+      <inertia ixx="0.1" ixy="0" ixz="0" iyy="0.1" iyz="0" izz="0.1" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://final_robot_ros/meshes/base_link.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="orange">
+        <color rgba="1.0 0.5 0.0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://final_robot_ros/meshes/base_link.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- BODY LINK -->
+  <link name="body_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="1.0" />
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://final_robot_ros/meshes/body_link.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="yellow">
+        <color rgba="1.0 0.8 0.0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://final_robot_ros/meshes/body_link.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="body_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="body_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
+  <!-- BOX LINK -->
+  <link name="box_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="1.0" />
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://final_robot_ros/meshes/box_link.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="grey">
+        <color rgba="0.5 0.5 0.5 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://final_robot_ros/meshes/box_link.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="box_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="box_link" />
+    <origin xyz="0 0.1075 -0.1375" rpy="0 0 0" />
+  </joint>
+
+  <!-- FRONT LEFT WHEEL -->
+  <link name="link_fl">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="0.5" />
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://final_robot_ros/meshes/left_front_wheel.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="black">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <!-- Use a cylinder for stable collisions -->
+        <cylinder radius="0.04" length="0.03" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="joint_fl" type="continuous">
+    <origin xyz="-0.145 0 0.1" rpy="0 0 3.14159" />
+    <parent link="base_link" />
+    <child link="link_fl" />
+    <axis xyz="1 0 0" />
+  </joint>
+
+  <!-- REAR LEFT WHEEL -->
+  <link name="link_bl">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="0.5" />
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://final_robot_ros/meshes/left_rear_wheel.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="black">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.04" length="0.03" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="joint_bl" type="continuous">
+    <origin xyz="-0.145 0 -0.1" rpy="0 0 3.14159" />
+    <parent link="base_link" />
+    <child link="link_bl" />
+    <axis xyz="1 0 0" />
+  </joint>
+
+  <!-- FRONT RIGHT WHEEL -->
+  <link name="link_fr">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="0.5" />
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://final_robot_ros/meshes/right_front_wheel.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="black">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.04" length="0.03" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="joint_fr" type="continuous">
+    <origin xyz="0.145 0 0.1" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="link_fr" />
+    <axis xyz="1 0 0" />
+  </joint>
+
+  <!-- REAR RIGHT WHEEL -->
+  <link name="link_br">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="0.5" />
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://final_robot_ros/meshes/right_rear_wheel.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="black">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.04" length="0.03" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="joint_br" type="continuous">
+    <origin xyz="0.145 0 -0.1" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="link_br" />
+    <axis xyz="1 0 0" />
+  </joint>
+
+  <!-- Gazebo specific colors -->
+  <gazebo reference="base_link">
+    <visual>
+      <material>
+        <ambient>1.0 0.5 0.0 1.0</ambient>
+        <diffuse>1.0 0.5 0.0 1.0</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <gazebo reference="body_link">
+    <visual>
+      <material>
+        <ambient>1.0 0.8 0.0 1.0</ambient>
+        <diffuse>1.0 0.8 0.0 1.0</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <gazebo reference="box_link">
+    <visual>
+      <material>
+        <ambient>0.5 0.5 0.5 1.0</ambient>
+        <diffuse>0.5 0.5 0.5 1.0</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <gazebo reference="link_fl">
+    <visual>
+      <material>
+        <ambient>0.1 0.1 0.1 1.0</ambient>
+        <diffuse>0.1 0.1 0.1 1.0</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <gazebo reference="link_bl">
+    <visual>
+      <material>
+        <ambient>0.1 0.1 0.1 1.0</ambient>
+        <diffuse>0.1 0.1 0.1 1.0</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <gazebo reference="link_fr">
+    <visual>
+      <material>
+        <ambient>0.1 0.1 0.1 1.0</ambient>
+        <diffuse>0.1 0.1 0.1 1.0</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+  <gazebo reference="link_br">
+    <visual>
+      <material>
+        <ambient>0.1 0.1 0.1 1.0</ambient>
+        <diffuse>0.1 0.1 0.1 1.0</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+
+  <gazebo>
+    <plugin
+      filename="ignition-gazebo-diff-drive-system"
+      name="ignition::gazebo::systems::DiffDrive">
+      <left_joint>joint_fl</left_joint>
+      <left_joint>joint_bl</left_joint>
+      <right_joint>joint_fr</right_joint>
+      <right_joint>joint_br</right_joint>
+      <wheel_separation>0.29</wheel_separation>
+      <wheel_radius>0.04</wheel_radius>
+      <topic>cmd_vel</topic>
+    </plugin>
+  </gazebo>
+
+</robot>
