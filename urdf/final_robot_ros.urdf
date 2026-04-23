@@ -8,7 +8,7 @@
     <child link="base_link"/>
     <!-- Rotate from ROS frame (Z-up) to STL frame (Y-up) -->
     <!-- X_ros = Z_stl, Y_ros = X_stl, Z_ros = Y_stl -->
-    <origin xyz="0 0 0" rpy="1.570796 0 1.570796" />
+    <origin xyz="0 0 0" rpy="1.570796 0 -1.570796" />
   </joint>
 
   <!-- BASE LINK -->
