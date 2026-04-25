@@ -56,3 +56,5 @@ Use `i`, `,`, `j`, `l` to move the robot!
 - `urdf/final_robot_ros.urdf`: The main robot description file.
 - `launch/gazebo.launch.py`: The launch file that starts the simulation and bridges.
 - `meshes/`: Directory containing all visual and collision STL files.
+
+## Added SLAM integration branch
