@@ -8,7 +8,9 @@
     <child link="base_link"/>
     <!-- Rotate from ROS frame (Z-up) to STL frame (Y-up) -->
     <!-- X_ros = Z_stl, Y_ros = X_stl, Z_ros = Y_stl -->
-    <origin xyz="0 0 0" rpy="1.570796 0 -1.570796" />
+    <!-- Keep base_footprint on the ground while lifting the chassis so
+         the wheels, not the body mesh, carry the robot. -->
+    <origin xyz="0 0 0.04" rpy="1.570796 0 -1.570796" />
   </joint>
 
   <!-- BASE LINK -->
@@ -110,7 +112,9 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <!-- URDF cylinders are Z-axis aligned by default. Rotate the
+           cylinder so its length is along the wheel joint axis (X). -->
+      <origin xyz="0 0 0" rpy="0 1.570796 0" />
       <geometry>
         <!-- Use a cylinder for stable collisions -->
         <cylinder radius="0.04" length="0.03" />
@@ -141,7 +145,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 1.570796 0" />
       <geometry>
         <cylinder radius="0.04" length="0.03" />
       </geometry>
@@ -171,7 +175,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 1.570796 0" />
       <geometry>
         <cylinder radius="0.04" length="0.03" />
       </geometry>
@@ -201,7 +205,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 1.570796 0" />
       <geometry>
         <cylinder radius="0.04" length="0.03" />
       </geometry>
@@ -283,7 +287,190 @@
       <wheel_separation>0.29</wheel_separation>
       <wheel_radius>0.04</wheel_radius>
       <topic>cmd_vel</topic>
+      <odom_topic>odom</odom_topic>
+      <tf_topic>tf</tf_topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_footprint</child_frame_id>
     </plugin>
+  </gazebo>
+
+  <!-- ============================================================ -->
+  <!-- 2D LiDAR SENSOR                                              -->
+  <!-- Mounted on top of body_link. The exported STL frame uses +Y up
+       and -Z forward, so the sensor link is rotated back to ROS axes. -->
+  <!-- ============================================================ -->
+  <link name="lidar_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="0.1" />
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <!-- Small cylinder representing the LiDAR body -->
+        <cylinder radius="0.04" length="0.04" />
+      </geometry>
+      <material name="lidar_blue">
+        <color rgba="0.0 0.4 0.8 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.04" length="0.04" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Mount LiDAR on top of body_link.
+       In body_link/export frame: +Y is up and -Z is robot-forward.
+       The body mesh top is at about Y=0.14, so Y=0.18 keeps the LiDAR
+       above the body and well clear of the ground. -->
+  <joint name="lidar_joint" type="fixed">
+    <parent link="body_link" />
+    <child link="lidar_link" />
+    <origin xyz="0 0.18 0" rpy="-1.570796 1.570796 0" />
+  </joint>
+
+  <!-- Gazebo Ignition: LiDAR visual colour -->
+  <gazebo reference="lidar_link">
+    <visual>
+      <material>
+        <ambient>0.0 0.4 0.8 1.0</ambient>
+        <diffuse>0.0 0.4 0.8 1.0</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+
+  <!-- Gazebo Ignition: GPU LiDAR sensor -->
+  <gazebo reference="lidar_link">
+    <sensor name="lidar_sensor" type="gpu_lidar">
+      <!-- Pose relative to lidar_link (centred, pointing forward) -->
+      <pose>0 0 0 0 0 0</pose>
+      <update_rate>10</update_rate>
+      <topic>scan</topic>
+      <gz_frame_id>lidar_link</gz_frame_id>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <!-- 360-degree sweep -->
+            <min_angle>-3.14159265</min_angle>
+            <max_angle>3.14159265</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>1</samples>
+            <resolution>1</resolution>
+            <min_angle>0</min_angle>
+            <max_angle>0</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>0.1</min>
+          <max>10.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+    </sensor>
+  </gazebo>
+
+  <!-- ============================================================ -->
+  <!-- RGB CAMERA SENSOR                                            -->
+  <!-- Mounted front-facing on body_link                            -->
+  <!-- In the exported body_link mesh, the visible front is +Z.       -->
+  <!-- ============================================================ -->
+  <link name="camera_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="0.05" />
+      <inertia ixx="0.00005" ixy="0" ixz="0" iyy="0.00005" iyz="0" izz="0.00005" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <!-- Small box representing the camera body -->
+        <box size="0.04 0.06 0.04" />
+      </geometry>
+      <material name="camera_red">
+        <color rgba="0.8 0.0 0.0 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.04 0.06 0.04" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- camera_optical_link: Z-forward optical frame (ROS convention) -->
+  <link name="camera_optical_link" />
+
+  <!-- Mount camera on the visible front face.
+       In body_link/export frame: +Y is up and the modeled front is +Z.
+       The camera sits above the wheel/ground plane and looks outward. -->
+  <joint name="camera_joint" type="fixed">
+    <parent link="body_link" />
+    <child link="camera_link" />
+    <origin xyz="0 0.10 0.17" rpy="0 -1.570796 -1.570796" />
+  </joint>
+
+  <!-- Optical frame: rotate so that Z points forward (camera convention) -->
+  <joint name="camera_optical_joint" type="fixed">
+    <parent link="camera_link" />
+    <child link="camera_optical_link" />
+    <!-- RPY: roll=-90deg, pitch=0, yaw=-90deg -> Z_optical = X_camera -->
+    <origin xyz="0 0 0" rpy="-1.5707963 0 -1.5707963" />
+  </joint>
+
+  <!-- Gazebo Ignition: camera visual colour -->
+  <gazebo reference="camera_link">
+    <visual>
+      <material>
+        <ambient>0.8 0.0 0.0 1.0</ambient>
+        <diffuse>0.8 0.0 0.0 1.0</diffuse>
+      </material>
+    </visual>
+  </gazebo>
+
+  <!-- Gazebo Ignition: camera sensor plugin -->
+  <gazebo reference="camera_link">
+    <sensor name="rgb_camera" type="camera">
+      <pose>0 0 0 0 0 0</pose>
+      <update_rate>30</update_rate>
+      <topic>camera</topic>
+      <gz_frame_id>camera_optical_link</gz_frame_id>
+      <camera>
+        <camera_info_topic>camera_info</camera_info_topic>
+        <optical_frame_id>camera_optical_link</optical_frame_id>
+        <horizontal_fov>1.0471975511965976</horizontal_fov>  <!-- 60 degrees -->
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.05</near>
+          <far>50.0</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.005</stddev>
+        </noise>
+      </camera>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+    </sensor>
   </gazebo>
 
 </robot>

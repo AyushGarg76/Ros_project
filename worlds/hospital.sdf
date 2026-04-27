@@ -1,0 +1,481 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <world name="hospital_corridor">
+
+    <!-- Physics -->
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <!-- Required Ignition plugins -->
+    <plugin filename="ignition-gazebo-physics-system"       name="ignition::gazebo::systems::Physics"/>
+    <plugin filename="ignition-gazebo-user-commands-system" name="ignition::gazebo::systems::UserCommands"/>
+    <plugin filename="ignition-gazebo-scene-broadcaster-system" name="ignition::gazebo::systems::SceneBroadcaster"/>
+    <plugin filename="ignition-gazebo-sensors-system"       name="ignition::gazebo::systems::Sensors">
+      <render_engine>ogre</render_engine>
+    </plugin>
+
+    <!-- Gravity -->
+    <gravity>0 0 -9.8</gravity>
+
+    <!-- ==================== LIGHTING ==================== -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.9 0.9 0.85 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation><range>1000</range><constant>0.9</constant><linear>0.01</linear><quadratic>0.001</quadratic></attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <!-- Ceiling strip lights -->
+    <light type="point" name="light_corridor1">
+      <pose>0 0 2.8 0 0 0</pose>
+      <diffuse>1 1 0.95 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation><range>12</range><constant>0.5</constant><linear>0.1</linear><quadratic>0.01</quadratic></attenuation>
+      <cast_shadows>false</cast_shadows>
+    </light>
+
+    <light type="point" name="light_corridor2">
+      <pose>8 0 2.8 0 0 0</pose>
+      <diffuse>1 1 0.95 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation><range>12</range><constant>0.5</constant><linear>0.1</linear><quadratic>0.01</quadratic></attenuation>
+      <cast_shadows>false</cast_shadows>
+    </light>
+
+    <light type="point" name="light_corridor3">
+      <pose>-8 0 2.8 0 0 0</pose>
+      <diffuse>1 1 0.95 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation><range>12</range><constant>0.5</constant><linear>0.1</linear><quadratic>0.01</quadratic></attenuation>
+      <cast_shadows>false</cast_shadows>
+    </light>
+
+    <!-- ==================== GROUND PLANE ==================== -->
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>50 50</size></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>50 50</size></plane></geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ==================== CEILING ==================== -->
+    <model name="ceiling">
+      <static>true</static>
+      <pose>0 0 3.0 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>30 10 0.1</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>30 10 0.1</size></box></geometry>
+          <material><ambient>0.95 0.95 0.95 1</ambient><diffuse>0.95 0.95 0.95 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ==================== MAIN CORRIDOR WALLS ==================== -->
+    <!-- South wall (long) -->
+    <model name="wall_south">
+      <static>true</static>
+      <pose>0 -2.0 1.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>30 0.15 3.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>30 0.15 3.0</size></box></geometry>
+          <material><ambient>0.9 0.9 0.88 1</ambient><diffuse>0.9 0.9 0.88 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- North wall (long) -->
+    <model name="wall_north">
+      <static>true</static>
+      <pose>0 2.0 1.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>30 0.15 3.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>30 0.15 3.0</size></box></geometry>
+          <material><ambient>0.9 0.9 0.88 1</ambient><diffuse>0.9 0.9 0.88 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- West end wall -->
+    <model name="wall_west">
+      <static>true</static>
+      <pose>-15 0 1.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.15 4.15 3.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>0.15 4.15 3.0</size></box></geometry>
+          <material><ambient>0.9 0.9 0.88 1</ambient><diffuse>0.9 0.9 0.88 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- East end wall -->
+    <model name="wall_east">
+      <static>true</static>
+      <pose>15 0 1.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.15 4.15 3.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>0.15 4.15 3.0</size></box></geometry>
+          <material><ambient>0.9 0.9 0.88 1</ambient><diffuse>0.9 0.9 0.88 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ==================== ROOM DIVIDERS (North side) ==================== -->
+    <!-- Room divider 1: between x=-15 and x=-9 (room 1) -->
+    <model name="divider_n1">
+      <static>true</static>
+      <pose>-9 3.5 1.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.15 3.0 3.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>0.15 3.0 3.0</size></box></geometry>
+          <material><ambient>0.85 0.85 0.82 1</ambient><diffuse>0.85 0.85 0.82 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Room 1 back wall (north) -->
+    <model name="wall_room1_back">
+      <static>true</static>
+      <pose>-12 5.0 1.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>6.15 0.15 3.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>6.15 0.15 3.0</size></box></geometry>
+          <material><ambient>0.9 0.9 0.88 1</ambient><diffuse>0.9 0.9 0.88 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Door frame gap for room 1 (open door): wall from x=-9 to x=-11, gap at x=-11 to x=-12 -->
+    <model name="wall_room1_door_left">
+      <static>true</static>
+      <pose>-10.0 2.0 1.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>2.0 0.15 3.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>2.0 0.15 3.0</size></box></geometry>
+          <material><ambient>0.9 0.9 0.88 1</ambient><diffuse>0.9 0.9 0.88 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Door open (leaning against wall) -->
+    <model name="door_room1">
+      <static>true</static>
+      <pose>-12.1 2.9 1.0 0 0 1.5708</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.05 0.9 2.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>0.05 0.9 2.0</size></box></geometry>
+          <material><ambient>0.6 0.4 0.2 1</ambient><diffuse>0.6 0.4 0.2 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Room divider 2: between x=-3 and x=3 -->
+    <model name="divider_n2">
+      <static>true</static>
+      <pose>-3 3.5 1.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.15 3.0 3.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>0.15 3.0 3.0</size></box></geometry>
+          <material><ambient>0.85 0.85 0.82 1</ambient><diffuse>0.85 0.85 0.82 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Room 2 back wall -->
+    <model name="wall_room2_back">
+      <static>true</static>
+      <pose>-6 5.0 1.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>6.15 0.15 3.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>6.15 0.15 3.0</size></box></geometry>
+          <material><ambient>0.9 0.9 0.88 1</ambient><diffuse>0.9 0.9 0.88 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_room2_door_left">
+      <static>true</static>
+      <pose>-4.0 2.0 1.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>2.0 0.15 3.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>2.0 0.15 3.0</size></box></geometry>
+          <material><ambient>0.9 0.9 0.88 1</ambient><diffuse>0.9 0.9 0.88 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="door_room2">
+      <static>true</static>
+      <pose>-3.1 2.9 1.0 0 0 1.5708</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.05 0.9 2.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>0.05 0.9 2.0</size></box></geometry>
+          <material><ambient>0.6 0.4 0.2 1</ambient><diffuse>0.6 0.4 0.2 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Room divider 3: between x=3 and x=9 -->
+    <model name="divider_n3">
+      <static>true</static>
+      <pose>3 3.5 1.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.15 3.0 3.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>0.15 3.0 3.0</size></box></geometry>
+          <material><ambient>0.85 0.85 0.82 1</ambient><diffuse>0.85 0.85 0.82 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_room3_back">
+      <static>true</static>
+      <pose>6 5.0 1.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>6.15 0.15 3.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>6.15 0.15 3.0</size></box></geometry>
+          <material><ambient>0.9 0.9 0.88 1</ambient><diffuse>0.9 0.9 0.88 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_room3_door_left">
+      <static>true</static>
+      <pose>2.0 2.0 1.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>2.0 0.15 3.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>2.0 0.15 3.0</size></box></geometry>
+          <material><ambient>0.9 0.9 0.88 1</ambient><diffuse>0.9 0.9 0.88 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="door_room3">
+      <static>true</static>
+      <pose>3.1 2.9 1.0 0 0 1.5708</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.05 0.9 2.0</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>0.05 0.9 2.0</size></box></geometry>
+          <material><ambient>0.6 0.4 0.2 1</ambient><diffuse>0.6 0.4 0.2 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ==================== OBSTACLES IN CORRIDOR ==================== -->
+
+    <!-- Hospital Bed 1 (box + legs) near room 1 door -->
+    <model name="bed1">
+      <static>true</static>
+      <pose>-12 -1.2 0.45 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>2.0 0.9 0.1</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>2.0 0.9 0.1</size></box></geometry>
+          <material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.9 0.9 0.9 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="bed1_frame">
+      <static>true</static>
+      <pose>-12 -1.2 0.22 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>2.1 1.0 0.44</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>2.1 1.0 0.44</size></box></geometry>
+          <material><ambient>0.7 0.7 0.75 1</ambient><diffuse>0.7 0.7 0.75 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Hospital Bed 2 near room 3 door -->
+    <model name="bed2">
+      <static>true</static>
+      <pose>6 -1.2 0.45 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>2.0 0.9 0.1</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>2.0 0.9 0.1</size></box></geometry>
+          <material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.9 0.9 0.9 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="bed2_frame">
+      <static>true</static>
+      <pose>6 -1.2 0.22 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>2.1 1.0 0.44</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>2.1 1.0 0.44</size></box></geometry>
+          <material><ambient>0.7 0.7 0.75 1</ambient><diffuse>0.7 0.7 0.75 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Chair 1 -->
+    <model name="chair1">
+      <static>true</static>
+      <pose>-6 1.5 0.22 0 0 0</pose>
+      <link name="link">
+        <!-- Seat -->
+        <collision name="seat_col"><pose>0 0 0 0 0 0</pose><geometry><box><size>0.45 0.45 0.05</size></box></geometry></collision>
+        <visual name="seat_vis">
+          <pose>0 0 0 0 0 0</pose>
+          <geometry><box><size>0.45 0.45 0.05</size></box></geometry>
+          <material><ambient>0.3 0.3 0.7 1</ambient><diffuse>0.3 0.3 0.7 1</diffuse></material>
+        </visual>
+        <!-- Back rest -->
+        <collision name="back_col"><pose>0 -0.2 0.25 0 0 0</pose><geometry><box><size>0.45 0.05 0.5</size></box></geometry></collision>
+        <visual name="back_vis">
+          <pose>0 -0.2 0.25 0 0 0</pose>
+          <geometry><box><size>0.45 0.05 0.5</size></box></geometry>
+          <material><ambient>0.3 0.3 0.7 1</ambient><diffuse>0.3 0.3 0.7 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Chair 2 -->
+    <model name="chair2">
+      <static>true</static>
+      <pose>-6 -1.5 0.22 0 0 3.14159</pose>
+      <link name="link">
+        <collision name="seat_col"><pose>0 0 0 0 0 0</pose><geometry><box><size>0.45 0.45 0.05</size></box></geometry></collision>
+        <visual name="seat_vis">
+          <pose>0 0 0 0 0 0</pose>
+          <geometry><box><size>0.45 0.45 0.05</size></box></geometry>
+          <material><ambient>0.3 0.3 0.7 1</ambient><diffuse>0.3 0.3 0.7 1</diffuse></material>
+        </visual>
+        <collision name="back_col"><pose>0 -0.2 0.25 0 0 0</pose><geometry><box><size>0.45 0.05 0.5</size></box></geometry></collision>
+        <visual name="back_vis">
+          <pose>0 -0.2 0.25 0 0 0</pose>
+          <geometry><box><size>0.45 0.05 0.5</size></box></geometry>
+          <material><ambient>0.3 0.3 0.7 1</ambient><diffuse>0.3 0.3 0.7 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Medical Trolley 1 (cylinder body + box tray) -->
+    <model name="trolley1">
+      <static>true</static>
+      <pose>-1.0 1.6 0.5 0 0 0</pose>
+      <link name="link">
+        <!-- Post -->
+        <collision name="post_col"><pose>0 0 0 0 0 0</pose><geometry><cylinder><radius>0.04</radius><length>1.0</length></cylinder></geometry></collision>
+        <visual name="post_vis">
+          <pose>0 0 0 0 0 0</pose>
+          <geometry><cylinder><radius>0.04</radius><length>1.0</length></cylinder></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material>
+        </visual>
+        <!-- Tray -->
+        <collision name="tray_col"><pose>0 0 0.45 0 0 0</pose><geometry><box><size>0.5 0.35 0.05</size></box></geometry></collision>
+        <visual name="tray_vis">
+          <pose>0 0 0.45 0 0 0</pose>
+          <geometry><box><size>0.5 0.35 0.05</size></box></geometry>
+          <material><ambient>0.85 0.85 0.85 1</ambient><diffuse>0.85 0.85 0.85 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Medical Trolley 2 -->
+    <model name="trolley2">
+      <static>true</static>
+      <pose>9.0 -1.6 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="post_col"><pose>0 0 0 0 0 0</pose><geometry><cylinder><radius>0.04</radius><length>1.0</length></cylinder></geometry></collision>
+        <visual name="post_vis">
+          <pose>0 0 0 0 0 0</pose>
+          <geometry><cylinder><radius>0.04</radius><length>1.0</length></cylinder></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material>
+        </visual>
+        <collision name="tray_col"><pose>0 0 0.45 0 0 0</pose><geometry><box><size>0.5 0.35 0.05</size></box></geometry></collision>
+        <visual name="tray_vis">
+          <pose>0 0 0.45 0 0 0</pose>
+          <geometry><box><size>0.5 0.35 0.05</size></box></geometry>
+          <material><ambient>0.85 0.85 0.85 1</ambient><diffuse>0.85 0.85 0.85 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Waste bin (cylinder) -->
+    <model name="waste_bin">
+      <static>true</static>
+      <pose>-14.5 1.7 0.3 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><cylinder><radius>0.18</radius><length>0.6</length></cylinder></geometry></collision>
+        <visual name="vis">
+          <geometry><cylinder><radius>0.18</radius><length>0.6</length></cylinder></geometry>
+          <material><ambient>0.2 0.6 0.2 1</ambient><diffuse>0.2 0.6 0.2 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Nurse station desk (box) -->
+    <model name="nurse_desk">
+      <static>true</static>
+      <pose>3.0 0 0.45 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>1.8 0.7 0.9</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>1.8 0.7 0.9</size></box></geometry>
+          <material><ambient>0.55 0.45 0.35 1</ambient><diffuse>0.55 0.45 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Box obstacle 1 -->
+    <model name="supply_box1">
+      <static>true</static>
+      <pose>13.5 1.5 0.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.5 0.5 0.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.5 0.5 0.5</size></box></geometry>
+          <material><ambient>0.7 0.6 0.3 1</ambient><diffuse>0.7 0.6 0.3 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Box obstacle 2 stacked -->
+    <model name="supply_box2">
+      <static>true</static>
+      <pose>13.5 1.5 0.75 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.5 0.5 0.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.5 0.5 0.5</size></box></geometry>
+          <material><ambient>0.6 0.5 0.25 1</ambient><diffuse>0.6 0.5 0.25 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>

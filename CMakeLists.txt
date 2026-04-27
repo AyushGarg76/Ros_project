@@ -17,7 +17,17 @@ install(
     config
     resource
     textures
+    worlds
+    scripts
+    maps
   DESTINATION share/${PROJECT_NAME}
+)
+
+# Install Python scripts so they are executable via ros2 run
+install(
+  PROGRAMS
+    scripts/pid_controller.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 # Export package
