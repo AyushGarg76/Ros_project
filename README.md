@@ -35,7 +35,7 @@ A ROS 2 Humble package for simulating a custom 4-wheeled differential drive robo
 1. Clone this repository into your `src` folder:
    ```bash
    cd ~/ros2_ws/src
-   git clone https://github.com/AyushGarg76/Ros_project.git final_robot_ros
+   git clone https://github.com/AyushGarg76/final_robot_ros.git
    ```
 2. Build and source:
    ```bash
@@ -100,6 +100,7 @@ ros2 run final_robot_ros pid_controller.py
 ## 🔧 Maintenance
 To update the project after modifications:
 ```bash
+source /opt/ros/humble/setup.bash
 colcon build --packages-select final_robot_ros
 source install/setup.bash
 ```
