@@ -16,6 +16,7 @@ install(
     launch
     config
     resource
+    rviz
     textures
     worlds
     scripts

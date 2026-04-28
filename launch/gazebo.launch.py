@@ -25,12 +25,6 @@ def generate_launch_description():
     )
 
     world_file = os.path.join(pkg_share, 'worlds', 'hospital.sdf')
-    slam_params_file = os.path.join(
-        pkg_share,
-        'config',
-        'mapper_params_online_async.yaml'
-    )
-
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py')
@@ -44,9 +38,7 @@ def generate_launch_description():
         arguments=[
             '-name', 'my_robot',
             '-string', robot_desc,
-            '-x', '0.0',
-            '-y', '0.0',
-            '-z', '0.02'
+            '-x', '0.0', '-y', '0.0', '-z', '0.02'
         ],
         output='screen'
     )
@@ -65,52 +57,37 @@ def generate_launch_description():
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=[
-            # Teleoperation: ROS /cmd_vel -> Gazebo /cmd_vel.
-            '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
-            # Odometry and TF from the DiffDrive plugin.
-            '/odom@nav_msgs/msg/Odometry@gz.msgs.Odometry',
-            '/tf@tf2_msgs/msg/TFMessage@gz.msgs.Pose_V',
-            # 2D LiDAR.
-            '/scan@sensor_msgs/msg/LaserScan@gz.msgs.LaserScan',
-            # RGB camera. Gazebo publishes /camera and /camera_info; remap
-            # them to the ROS image pipeline names expected by RViz/Nav tools.
-            '/camera@sensor_msgs/msg/Image@gz.msgs.Image',
-            '/camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo',
-            # Simulation clock for use_sim_time nodes.
-            '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',
+            # ROS → Gazebo (use ] suffix)
+            '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
+
+            # Gazebo → ROS (use [ suffix) — prevents TF loop
+            '/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
+            '/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
+            '/tf_static@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
+            '/final_scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            '/camera@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+
+            # Joint states from Gazebo plugin → ROS
+            '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
         ],
         remappings=[
             ('/camera', '/camera/image_raw'),
             ('/camera_info', '/camera/camera_info'),
         ],
+        parameters=[{
+        'qos_overrides./tf_static.publisher.durability': 'transient_local',
+    }],
         output='screen'
     )
 
-    slam_toolbox = Node(
-        package='slam_toolbox',
-        executable='async_slam_toolbox_node',
-        name='slam_toolbox',
-        output='screen',
-        parameters=[
-            slam_params_file,
-            {'use_sim_time': use_sim_time},
-        ],
-        remappings=[
-            ('/scan', '/scan'),
-            ('/tf', '/tf'),
-            ('/tf_static', '/tf_static'),
-        ]
-    )
-
+    # NO standalone joint_state_publisher here — Gazebo plugin handles it
     return LaunchDescription([
-        DeclareLaunchArgument(
-            'use_sim_time',
-            default_value='true',
-            description='Use Gazebo simulation clock'
-        ),
-        gz_sim,
-        spawn_entity,
-        robot_state_publisher,
-        bridge,
-        slam_toolbox
-    ])
+    DeclareLaunchArgument('use_sim_time', default_value='true',
+                          description='Use Gazebo simulation clock'),
+    gz_sim,
+    spawn_entity,
+    robot_state_publisher,
+    bridge,
+    # NO joint_state_publisher node here
+])

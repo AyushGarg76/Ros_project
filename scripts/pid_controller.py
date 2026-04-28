@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 """
 pid_velocity_controller.py
 ==========================
@@ -25,6 +25,7 @@ import rclpy
 from rclpy.node import Node
 from rcl_interfaces.msg import ParameterDescriptor, ParameterType, SetParametersResult
 from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
 import time
 
 
@@ -119,6 +120,8 @@ class PIDVelocityController(Node):
 
         self.declare_parameter('max_linear_vel',  0.5,  _desc('Max linear output (m/s)'))
         self.declare_parameter('max_angular_vel', 1.0,  _desc('Max angular output (rad/s)'))
+        self.declare_parameter('max_linear_accel', 0.5, _desc('Fallback linear slew rate (m/s^2)'))
+        self.declare_parameter('max_angular_accel', 1.0, _desc('Fallback angular slew rate (rad/s^2)'))
         self.declare_parameter('windup_limit',    1.0,  _desc('Integrator anti-windup clamp'))
         self.declare_parameter('publish_rate',   20.0,  _desc('Control loop rate (Hz)'))
 
@@ -131,10 +134,14 @@ class PIDVelocityController(Node):
         self._setpoint_angular = 0.0
         self._measured_linear  = 0.0   # will be updated from /odom if available
         self._measured_angular = 0.0
+        self._last_linear_output = 0.0
+        self._last_angular_output = 0.0
+        self._last_loop_time = time.monotonic()
 
         # Timeout: if no /cmd_vel_raw within this many seconds, stop the robot
         self._cmd_timeout_sec = 0.5
         self._last_cmd_time = 0.0
+        self._last_odom_time = 0.0
 
         # ── PubSub ────────────────────────────────────────────────────────
         self._pub = self.create_publisher(Twist, '/cmd_vel', 10)
@@ -146,11 +153,12 @@ class PIDVelocityController(Node):
             10
         )
 
-        # Optional: subscribe to /odom for real measured velocity feedback
-        # Uncomment when odometry is reliable:
-        # from nav_msgs.msg import Odometry
-        # self._odom_sub = self.create_subscription(
-        #     Odometry, '/odom', self._odom_callback, 10)
+        self._odom_sub = self.create_subscription(
+            Odometry,
+            '/odom',
+            self._odom_callback,
+            10
+        )
 
         # ── Control loop timer ────────────────────────────────────────────
         rate = self.get_parameter('publish_rate').value
@@ -203,9 +211,10 @@ class PIDVelocityController(Node):
         self._last_cmd_time    = time.monotonic()
 
     # Uncomment for real odom feedback:
-    # def _odom_callback(self, msg):
-    #     self._measured_linear  = msg.twist.twist.linear.x
-    #     self._measured_angular = msg.twist.twist.angular.z
+    def _odom_callback(self, msg):
+        self._measured_linear = msg.twist.twist.linear.x
+        self._measured_angular = msg.twist.twist.angular.z
+        self._last_odom_time = time.monotonic()
 
     def _param_callback(self, params) -> SetParametersResult:
         """Allow live re-tuning via `ros2 param set`."""
@@ -226,6 +235,8 @@ class PIDVelocityController(Node):
     def _control_loop(self):
         """Main PID control loop — runs at publish_rate Hz."""
         now = time.monotonic()
+        dt = now - self._last_loop_time
+        self._last_loop_time = now
 
         # Safety: if command is stale, command zero
         if now - self._last_cmd_time > self._cmd_timeout_sec and self._last_cmd_time > 0.0:
@@ -234,29 +245,54 @@ class PIDVelocityController(Node):
             self._linear_pid.reset()
             self._angular_pid.reset()
 
-        # Compute PID outputs
-        # measured = setpoint when no encoder feedback (acts as a smoother)
-        lin_out = self._linear_pid.compute(
-            setpoint=self._setpoint_linear,
-            measured=self._measured_linear,
-            now=now
-        )
-        ang_out = self._angular_pid.compute(
-            setpoint=self._setpoint_angular,
-            measured=self._measured_angular,
-            now=now
-        )
+        if now - self._last_odom_time < 0.5:
+            # Closed-loop velocity PID when odometry is available.
+            lin_out = self._linear_pid.compute(
+                setpoint=self._setpoint_linear,
+                measured=self._measured_linear,
+                now=now
+            )
+            ang_out = self._angular_pid.compute(
+                setpoint=self._setpoint_angular,
+                measured=self._measured_angular,
+                now=now
+            )
+        else:
+            # No measured velocity yet: behave as a stable command smoother.
+            lin_out = self._slew(
+                self._last_linear_output,
+                self._setpoint_linear,
+                self.get_parameter('max_linear_accel').value,
+                dt
+            )
+            ang_out = self._slew(
+                self._last_angular_output,
+                self._setpoint_angular,
+                self.get_parameter('max_angular_accel').value,
+                dt
+            )
 
-        # After PID output, advance "measured" toward output for next cycle
-        # (open-loop integration — remove when real odom feedback is used)
-        self._measured_linear  = lin_out
-        self._measured_angular = ang_out
+        self._last_linear_output = lin_out
+        self._last_angular_output = ang_out
 
         # Publish
         out_msg = Twist()
         out_msg.linear.x  = lin_out
         out_msg.angular.z = ang_out
         self._pub.publish(out_msg)
+
+    @staticmethod
+    def _slew(current: float, target: float, max_rate: float, dt: float) -> float:
+        if dt <= 0:
+            return current
+
+        max_step = abs(max_rate) * dt
+        error = target - current
+        if error > max_step:
+            return current + max_step
+        if error < -max_step:
+            return current - max_step
+        return target
 
 
 def main(args=None):
