@@ -6,7 +6,7 @@ slam_toolbox:
     odom_frame: odom
     map_frame: map
     base_frame: base_footprint
-    scan_topic: /scan
+    scan_topic: /final_scan
     mode: mapping
 
     # Async mapping mode settings.
@@ -14,7 +14,7 @@ slam_toolbox:
     transform_publish_period: 0.02
     map_update_interval: 2.0
     resolution: 0.05
-    min_laser_range: 0.09
+    min_laser_range: 0.29
     max_laser_range: 10.0
     minimum_time_interval: 0.5
     transform_timeout: 0.2
