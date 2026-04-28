@@ -5,14 +5,13 @@ A ROS 2 Humble package for simulating a custom 4-wheeled differential drive robo
 ---
 
 ## 🚀 Features
-- **Accurate Physics**: Properly tuned mass and inertia values for stable simulation of a 4-wheeled robot.
+- **Accurate Physics**: Properly tuned mass and inertia values for stable simulation of a 4-wheeled robot, originally exported from SolidWorks.
 - **Custom Sensors**: 
-  - **2D LiDAR**: 360-degree scan, 10Hz update rate, 10m range.
-  - **RGB Camera**: Front-facing, 30Hz, 640x480 resolution.
-- **Hospital World**: A custom Gazebo Ignition SDF world simulating a hospital corridor with obstacles like beds and trolleys.
-- **Velocity PID Controller**: A custom Python node for linear and angular velocity smoothing with anti-windup.
-- **SLAM Integration**: `slam_toolbox` configuration for real-time 2D mapping.
-- **Navigation Stack**: Nav2 configuration using `RegulatedPurePursuitController` for smooth autonomous movement.
+  - **2D LiDAR**: 360-degree scan, 10Hz update rate, 10m range. Includes a self-collision fix to ensure the robot's own mesh doesn't block rays.
+  - **RGB Camera**: Front-facing, 30Hz, 640x480 resolution with optical frame transformations.
+- **Hospital World**: A detailed Gazebo Ignition SDF world simulating a hospital corridor with realistic obstacles.
+- **SLAM & Navigation**: Fully integrated `slam_toolbox` and `Nav2` for mapping and autonomous path planning.
+- **Project Report**: A detailed project documentation is available in [Project_Report.md](./Project_Report.md).
 
 ---
 
@@ -79,7 +78,16 @@ To use the smoothed velocity controller:
 ```bash
 ros2 run final_robot_ros pid_controller.py
 ```
-*Note: This node listens to `/cmd_vel_raw` and publishes to `/cmd_vel`.*
+*Note: This node listens to `/cmd_vel_raw` and publishes to `/cmd_vel` for smoother motion.*
+
+---
+
+## 🛠 SolidWorks Integration
+The robot was designed in SolidWorks and exported using the **SW2URDF** exporter. Key modifications made to the exported URDF include:
+- Fixed inertia matrices to prevent "jittery" behavior in Gazebo.
+- Adjusted collision meshes to optimize performance.
+- Added Gazebo-specific plugins for the differential drive and sensor simulation.
+
 
 ---
 

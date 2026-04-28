@@ -1,9 +1,9 @@
 <package format="3">
   <name>final_robot_ros</name>
   <version>1.0.0</version>
-  <description>URDF and robot description package</description>
+  <description>ROS 2 Humble package for a custom 4-wheeled mobile robot simulation with SLAM and Nav2 integration.</description>
 
-  <maintainer email="you@email.com">you</maintainer>
+  <maintainer email="ayush@todo.todo">Ayush</maintainer>
   <license>BSD-3-Clause</license>
 
   <!-- Build tool -->
