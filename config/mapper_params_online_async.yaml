@@ -6,7 +6,7 @@ slam_toolbox:
     odom_frame: odom
     map_frame: map
     base_frame: base_footprint
-    scan_topic: /final_scan
+    scan_topic: /scan
     mode: mapping
 
     # Async mapping mode settings.

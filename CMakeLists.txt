@@ -28,6 +28,7 @@ install(
 install(
   PROGRAMS
     scripts/pid_controller.py
+    scripts/nav_evaluator.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

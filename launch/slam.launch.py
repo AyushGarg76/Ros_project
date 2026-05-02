@@ -83,6 +83,9 @@ def generate_launch_description():
                         params_file,
                         {'use_sim_time': use_sim_time},
                     ],
+                    remappings=[
+        ('scan', '/final_scan'),   # ⚠️ IMPORTANT: no leading slash
+    ],
                 ),
                 Node(
                     package='rviz2',

@@ -7,7 +7,7 @@ ROS 2 Humble node: simple dual-axis PID velocity controller.
 Subscribes : /cmd_vel_raw  (geometry_msgs/msg/Twist)  – desired velocity
 Publishes  : /cmd_vel      (geometry_msgs/msg/Twist)  – PID-filtered output
 
-Two independent PID loops:
+Two independent PID loops:o
   • linear.x  – forward / backward velocity
   • angular.z – rotational velocity
 
